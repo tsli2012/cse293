@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="trunk/TIMCrawler/src">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="TIM/trunk/TIMCrawler/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/commons-io-2.0.1.jar"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/log4j-1.2.16.jar"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/mysql-connector-java-5.1.19-bin.jar"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/naturalcli-1.2.3.jar"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/simple-4.1.21.jar"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="trunk/TIMCrawler/lib/slf4j-log4j12-1.6.4.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

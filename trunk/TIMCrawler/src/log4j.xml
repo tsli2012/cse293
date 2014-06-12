@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+	<appender name="CA" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-25t] %-5p: %m%n" />
+		</layout>
+	</appender>
+	<appender name="Log4jViewer" class="org.apache.log4j.net.SocketAppender">
+    	<param name="remoteHost" value="localhost"/>
+    	<param name="port" value="4445"/>
+    	<param name="locationInfo" value="true"/>
+  	</appender>
+	<root>
+		<level value="error" />
+		<appender-ref ref="CA"/>
+	</root>
+</log4j:configuration>

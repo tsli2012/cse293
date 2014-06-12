@@ -1,0 +1,40 @@
+#summary How to install, run and use TIMCrawler?
+#labels Featured,Phase-Deploy
+
+= Overview =
+These instructions will guide you how to install, run and use all the relevant components of TIMCrawler !BitTorrent client.
+
+= Installing the DB =
+== Install mysql ==
+The first thing you should do is install mysql server and mysql workbench. Follow these instruction to do so http://dev.mysql.com/downloads/installer/
+== Install the DB scheme ==
+  * Download `timc.mwb` from the download page
+  * Open it with mysql workbench (File->Open Model...)
+  * Synchronize the DB model (Database->Synchronize model...). For more detailed explanation: http://dev.mysql.com/doc/workbench/en/wb-database-synchronization.html).
+
+= Using TIMC =
+== Running the jar file ==
+  * Download `timc-1.0.jar` from the download page.
+  * Run the jar file from command line: `java -jar timc-1.0.jar <file.torrent> <dest-folder>`
+    * `file.torrent` - A full path to the torrent file
+    * `dest-folder` - A full path to a directory where the downloaded files will be saved to
+== Using TIMC client ==
+After running TIMCrawler, the download will automatically begin. TIMCrawler is a command line client which supports the following commands:
+  * `stat` - Display the status of the client.
+    * For example: _"Reconnector has 10 waiting peers, ConnectionTP has 5 queued tasks, and 6(6) threads, Now is 21:03:56, Last Announce 21:02:50, Last Connection 21:03:32."_
+   Meaning: there are 10 peers that are suspected to abandoned; there are 5 peers waiting to be connected by the connection threadpool.
+  * `info` - Display the download information.
+    * For example: _"!BitTorrent client SHARING, 9/19/29 peers, 12/1457/1457 pieces (5.1% , 10 requested), 252.31/0.00 kB/s."_
+   Meaning: we are connected to 19 peers, 9 peers are choking us, we were connected to 29 peers in the past, we have downloaded 5.1% of the torrent's files.
+  * `stop` - Stop the download, and close all relevant resources used by the client. This command must be use at the end of the test.
+
+== Viewing Logs ==
+When running TIMCrawler, all the relevant events are logged to a special log file created under: <running dir>\logs\info.log. You can follow this log file during the client's operation by simply using notpad, or by using [http://www.baremetalsoft.com/baretail/ baretail], a dedicated program for viewing log files.
+
+== Statistics and Analysis ==
+During the client's operation, all relevant events are logged into the mysql DB. After running several tests, you can analyze them by following the AnalysisGuide.
+
+= TIMCrawler source =
+If you would like to use the source of the project, you have two options: 
+  * Checkout the project from the svn: http://code.google.com/p/timcrawler/source/checkout
+  * Download `timc-1.0-src.jar` from the download page and add it to your project.

@@ -1,0 +1,80 @@
+#summary The project's objectives and high-level design
+#labels Featured,Phase-Design
+=TIM Crawler - Torrent Impatience Monitor=
+
+==Objective==
+Create a tool that will enable gathering statistical information regarding peer abandonment (i.e. departure of a peer before completing download) in !BitTorrent swarms.
+We wish to capture two main measures: download rate and completion rate. We want to measure the impact of these two parameters on peer abandonment, as well as the impact of different sizes of files and different sizes of swarms.
+
+==The Main Idea==
+Implement a !BitTorrent client, and modify it in order to get all the relevant information regarding peer abandonment, and the two main measures: download rate and completion rate. A peer is considered to abandoned when he disconnects from us, and he’s not reachable for a ‘reasonable’ amount of time (i.e for over a certain time period - we can’t reconnect with him, and the tracker doesn’t report on him). The two main measures (peer’s download and completion rate) will be concluded from the initial bitfield, and the ongoing ‘have’ messages received from the peer.
+
+==Who are we==
+We are three students for Computers Science in Tel-Aviv university, and this is our workshop course.
+We are Asaf Shamir, Lior Chikotay and Omer Shwager.
+The workshop course is taught and guided by Professor Hanoch Levi and teaching assistant Hillel Avni. We were also guided by Dr. Eli Brosh.
+
+==Design Overview==
+===Client===
+Implements the !BitTorrent protocol, taking into consideration our main objective.
+  * Never announce itself as a seeder, as some clients don’t send relevant information to seeders (e.g ‘have’ messages). In this matter we implement a configurable behaviour of our Client (regarding when and how to stop itself from becoming a seed) in order to find the optimal recipe. 
+  * Preserve connection with non-seeders peer to whom we were connected. Meaning that our client will continuously try to connect with disconnected peers in order to indicate abandonment. We found that clients hardly refuse an incoming connection, even if we don’t contribute them much. Our objective is to preserve connection with them, even if we are ‘choked’, as long as they are in the swarm.
+  * Connect to a ‘reasonable’ amount of peers (more than a regular client) in order to make the results more distincts.
+  * ‘Play by the rules’ (i.e send pieces and follow the protocol) in order to maintain long connections.
+In order to be able to improve the client’s behaviour (with respect to our objective), we use proper configuration (i.e how many connections, how to avoid becoming a seeder etc.).
+
+===Identifying peer abandonment===
+A peer is considered to abandoned the swarm if all the following hold:
+  * He is not (or hasn't become) a seeder.
+  * He disconnected from us, and did not respond to our re-connection tries for a reasonable amount of time. We perform the re-connection tries to all disconnected peers every time we get Announce response from the tracker (every 3 minutes - configurable).
+  * The actual abandonment is defined retrospectively at the [DesignOverview#Analysis analysis] stage. We defined the reasonable amount of time which the peer didn't respond to be 30 minutes.
+
+===Event Logging===
+Log any relevant information for indicating abandonments, and the relevant measures during each abandonment (i.e peer’s download and completion rate).
+Indicating an abandonment with high certainty is pretty difficult, and therefore we log any information that might help us do so (even information that we still can’t tell how it might help us). In order to be able to collect lots of data and make the analysis easier, we use a DB to store all relevant events. The basic data blocks that store the events:
+  * Test - running of a single TIMCrawler. Holds information about the swarm and client’s operation mode.
+  * Session - a single connection with a peer, starting from the handshake and ending with the peer’s disconnection. Hold information about the peer, session times, peer’s download and completion rate at the end of the session. Note that we can have several sessions with a peer on a single test. In that case, the last session will be taken into consideration when analyzing abandonments.
+  * Tracker session - information received from the tracker about the peer (the last time we got the peer’s details from the tracker).
+
+===Analysis===
+Perform [AnalysisGuide deep analysis] of the logged events in order to indicate abandonment, and find the relevant measures during each abandonment.
+
+==Main Components==
+
+===Client===
+====Operation modes====
+Added an option to run the client in different modes to test where we get the best results (best statistics). The modes are:
+  * Normal - No change in the behaviour of the original client.
+  * !NeverNotifySeeder - When reaching a certain completion rate (configurable), stop sending HAVE messages when acquiring a new piece, and stop updating the bitfield sent to other peers upon a successful connection. Continue to download normally until full completion. The purpose is never to be seen as seeders to other peers, in case some clients stop sending HAVE messages to seeders.
+  * !HalfSeedDropNewPieces - When reaching a certain completion rate (configurable), ignore incoming pieces but in all other ways continue to act normally - request new pieces, upload etc. The purpose is to forever stay as active as possible to maintain substantial communication with other peers for as long as possible.
+
+====Reconnect to known peers====
+Constantly reconnect to clients that were connected to us in order to maintain their status.
+
+====Announce requests from tracker====
+Send announce requests to tracker much more often than regular Clients (configurable).  We use this in order to get as much information as possible.  Former researches have shown that this behaviour is acceptable by the tracker.   
+
+====Connect to peers====
+Use a threadpool for connecting to new peers received from tracker. This is done to accelerate the peer connection process.
+
+===!StatsLogger===
+  * This is a module designed to keep track of all information of other peers which is relevant to our goals.
+  * This information is logged using !StatsWriter module.
+  * For each peer the Client connects to - create and maintain a “Session” block of data (e.g. time of connection, number of times connected to this peer, download rate, completion rate etc). 
+  * When a peer disconnects - log this session’s data using !StatsWriter.
+  * For each Announce message received from the tracker - log all peers that were announced. The motivation for this: if we get a peer from the tracker some time after we’ve considered it to have abandoned the swarm (because it has disconnected from our client and is not accepting connections at all) - that will mean that this peer didn’t in fact abandon the swarm.  This scenario is possible when a peer changed its peerId or ip/port, or if it refuses connections from our client after disconnecting from it (we are not sure yet whether this is a possible scenario because it should first connect anyway on its listening port and then disconnect).
+
+===DBStatsWriter===
+This is the DB access layer, which write to the DB statistics received from the StatsLogger. Has ‘intimate’ knowledge about the DB scheme.
+
+===Configuration===
+Configure common parameters from properties file
+
+===CLI===
+Basic command line interface that supports: ‘info’ - print an info line about current status of client’s connection; ‘stop’ - stop current test, and properly close all components.
+
+==Limitations==
+  * Inaccurate peer download rate - it's calculated by the only way possible which is the number of piece HAVE messages received per time unit times piece size divided by time unit. Since most clients send those HAVE messages in batches there could be inaccuracies, especially for very short sessions.
+  * Can’t distinguish between clients who block us (is it possible?) and clients who have cancelled the tested torrent but still downloading other torrents (i.e listening port still open).
+  * A torrent file usually contains more than one tracker, but we only count one of the tracker’s peers. In addition, the peer can also use DHT to expand the number of reachable peers.
+  * A peer can choose to download only some of the files in the torrent, so a partial download could be falsely considered an abandonment (we believe that this rarely happens).

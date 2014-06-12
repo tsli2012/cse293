@@ -1,0 +1,62 @@
+#summary Diff summary between base version and release version
+
+=Introduction=
+In the following page you can see the project's structure.
+  * The `com` package was originally taken from http://turn.github.com/ttorrent/
+  * The `timc` package was completely written by TIMCrawler group
+  * Click the links to see a visual view of the differences between the base version and the release version
+
+=Project's Structure=
+  * timc
+    * `common`
+        * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&r=33&format=side&path=/trunk/TIMCrawler/src/timc/common/ParseInterestingLog.java&old_path=/trunk/TIMCrawler/src/timc/common/ParseInterestingLog.java&old= ParseInterestingLog.java]
+        * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&old=0&r=120&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Ftimc%2Fcommon%2FTIMConfigurator.java TIMConfigurator.java]
+        * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&r=40&format=side&path=/trunk/TIMCrawler/src/timc/common/Utils.java&old_path=/trunk/TIMCrawler/src/timc/common/Utils.java&old=0 Utils.java]
+    * `main`
+        * [https://code.google.com/p/timcrawler/source/diff?spec=svn140&r=122&format=side&path=/trunk/TIMCrawler/src/timc/main/TIMCrawlerCLI.java&old_path=/trunk/TIMCrawler/src/timc/main/TIMCrawlerCLI.java&old=0 TIMCrawlerCLI.java]
+    * `stats`
+      * `db`
+        * [https://code.google.com/p/timcrawler/source/diff?spec=svn140&r=86&format=side&path=/trunk/TIMCrawler/src/timc/stats/db/DBStatsWriter.java&old_path=/trunk/TIMCrawler/src/timc/stats/db/DBStatsWriter.java&old=0 DBStatsWriter.java]
+      * `logger`
+        * [https://code.google.com/p/timcrawler/source/diff?spec=svn140&r=101&format=side&path=/trunk/TIMCrawler/src/timc/stats/logger/StatsLogger.java&old_path=/trunk/TIMCrawler/src/timc/stats/logger/StatsLogger.java&old=0 StatsLogger.java]
+      * [https://code.google.com/p/timcrawler/source/diff?spec=svn141&r=55&format=side&path=/trunk/TIMCrawler/src/timc/stats/PeerStats.java&old_path=/trunk/TIMCrawler/src/timc/stats/PeerStats.java&old= PeerStats.java]
+      * [https://code.google.com/p/timcrawler/source/diff?spec=svn141&r=89&format=side&path=/trunk/TIMCrawler/src/timc/stats/SessionRecord.java&old_path=/trunk/TIMCrawler/src/timc/stats/SessionRecord.java&old=0 SessionRecord.java]
+      * [https://code.google.com/p/timcrawler/source/diff?spec=svn141&r=63&format=side&path=/trunk/TIMCrawler/src/timc/stats/StatsWriter.java&old_path=/trunk/TIMCrawler/src/timc/stats/StatsWriter.java&old=0 StatsWriter.java]
+      * [https://code.google.com/p/timcrawler/source/diff?spec=svn141&r=79&format=side&path=/trunk/TIMCrawler/src/timc/stats/StatsWriterTest.java&old_path=/trunk/TIMCrawler/src/timc/stats/StatsWriterTest.java&old=0 StatsWriterTest.java]
+      * [https://code.google.com/p/timcrawler/source/diff?spec=svn141&r=79&format=side&path=/trunk/TIMCrawler/src/timc/stats/TestRecord.java&old_path=/trunk/TIMCrawler/src/timc/stats/TestRecord.java&old=0 TestRecord.java]
+  * `com`
+    * `turn`
+      * `ttorrent`
+        * `bcodec`
+          * BDecoder.java
+          * BEValue.java
+          * BEncoder.java
+          * InvalidBEncodingException.java
+        * `client`
+          * `peer`
+            * !MessageListener.java
+            * !PeerActivityListener.java
+            * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&old=9&r=104&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2Fpeer%2FPeerExchange.java PeerExchange.java]
+            * Rate.java
+            * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&old=9&r=97&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2Fpeer%2FSharingPeer.java SharingPeer.java]
+          * `storage`
+            * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&old=9&r=93&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2Fstorage%2FFileCollectionStorage.java FileCollectionStorage.java]
+            * !FileStorage.java
+            * !TorrentByteStorage.java
+          * [https://code.google.com/p/timcrawler/source/diff?spec=svn136&old=9&r=89&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2FAnnounce.java Announce.java]
+          * !AnnounceResponseListener.java
+          * [https://code.google.com/p/timcrawler/source/diff?spec=svn136&old=9&r=105&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2FClient.java Client.java]
+          * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&old=9&r=102&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2FConnectionHandler.java ConnectionHandler.java]
+          * Handshake.java
+          * !IncomingConnectionListener.java
+          * Message.java
+          * Piece.java
+          * [https://code.google.com/p/timcrawler/source/diff?spec=svn9&old=9&r=97&format=side&path=%2Ftrunk%2FTIMCrawler%2Fsrc%2Fcom%2Fturn%2Fttorrent%2Fclient%2FSharedTorrent.java SharedTorrent.java]
+      * `common`
+          * [https://code.google.com/p/timcrawler/source/diff?spec=svn137&r=19&format=side&path=/trunk/TIMCrawler/src/com/turn/ttorrent/common/Peer.java&old_path=/trunk/TIMCrawler/src/com/turn/ttorrent/common/Peer.java&old=9 Peer.java]
+          * Torrent.java
+      * `tracker`
+          * !TrackedPeer.java
+          * !TrackedTorrent.java
+          * Tracker.java
+          * !TrackerService.java

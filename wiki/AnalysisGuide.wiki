@@ -1,0 +1,64 @@
+#summary How to analyze your tests results?
+
+= Get all abandoners from all tests =
+
+<code language="sql">
+select timediff(s.last_seen, s.start_time) as "last session length" , bitfield_recv, completion_rate, floor(completion_rate*20)*5 as "completion rate group", total_size as "total size (bytes)", 
+last_dl_rate1 as "last min dl rate (kB/s)", if (floor(last_dl_rate1/10)*10 > 300, 300, floor(last_dl_rate1/10)*10) as "last  min dl rate group" , 
+total_download_rate as "session dl rate (kB/s)", IF(ceil(total_download_rate/10)*10 > 300, 300, ceil(total_download_rate/10)*10) as "session dl rate group", 
+total_size*(1-completion_rate)/1024/total_download_rate as "ETA (seconds)",
+sec_to_time(total_size*(1-completion_rate)/1024/total_download_rate) as "ETA",
+ceil((total_size*(1-completion_rate)/1024/total_download_rate)/1800)*1800 as "ETA group (seconds)",
+sec_to_time(IF(ceil((total_size*(1-completion_rate)/1024/total_download_rate)/1800)*1800 > 24*3600, 24*3600,
+                ceil((total_size*(1-completion_rate)/1024/total_download_rate)/1800)*1800)) as "ETA group"
+from tim.tests t, tim.sessions s,
+(select peer_id,fk_test_id,peer_ip,max(session_num) s_max
+from tim.sessions where session_num>0 and fk_test_id in(117, 114, 111, 108)
+group by peer_id) tmp
+where s.fk_test_id=t.id and s.peer_id=tmp.peer_id and s.fk_test_id=tmp.fk_test_id
+and s.peer_ip=tmp.peer_ip and s.session_num=tmp.s_max
+and (timediff(t.end_time,s.last_seen) > '00:30:00')
+and completion_rate<=0.95
+limit 10000
+</code>
+
+= Get total number of peers encountered in a test not including peers that we saw in the last 30 minutes but are not seeders (so we can't classify them) =
+
+<code language="sql">
+select count(*) from tim.tests t, tim.sessions s,
+(select peer_id,fk_test_id,peer_ip,max(session_num) s_max
+from tim.sessions where session_num>0 and fk_test_id=117
+group by peer_id) tmp
+where s.fk_test_id=t.id and s.peer_id=tmp.peer_id and s.fk_test_id=tmp.fk_test_id
+and s.peer_ip=tmp.peer_ip and s.session_num=tmp.s_max
+and (timediff(t.end_time,s.last_seen) > '00:30:00' or completion_rate>=0.95)
+and bitfield_recv=1
+limit 10000
+</code>
+
+= Get number of abandoners in a test =
+
+<code language="sql">
+select count(*) from tim.tests t, tim.sessions s,
+(select peer_id,fk_test_id,peer_ip,max(session_num) s_max
+from tim.sessions where session_num>0 and fk_test_id=117
+group by peer_id) tmp
+where s.fk_test_id=t.id and s.peer_id=tmp.peer_id and s.fk_test_id=tmp.fk_test_id
+and s.peer_ip=tmp.peer_ip and s.session_num=tmp.s_max
+and (timediff(t.end_time,s.last_seen) > '00:30:00')
+and completion_rate<=0.95 
+and bitfield_recv=1
+limit 10000
+</code>
+
+= Get test file size (MB) and duration = 
+
+<code language="sql">
+SELECT id, total_size/(1024*1024), timediff(end_time, start_time) FROM tim.tests where id = 105;
+</code>
+
+= Get test-long average number of seeders/leechers =
+
+<code language="sql">
+select avg(last_num_seeders), avg(last_num_leechers) from tim.sessions s where fk_test_id = 108;
+</code>

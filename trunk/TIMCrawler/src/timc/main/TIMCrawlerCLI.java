@@ -1,0 +1,110 @@
+package timc.main;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.log4j.xml.DOMConfigurator;
+import org.naturalcli.Command;
+import org.naturalcli.InvalidSyntaxException;
+import org.naturalcli.NaturalCLI;
+import org.naturalcli.commands.HelpCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.turn.ttorrent.client.Client;
+import com.turn.ttorrent.client.Client.ClientState;
+import com.turn.ttorrent.client.SharedTorrent;
+
+public class TIMCrawlerCLI {
+
+	
+	private static final Logger logger =
+			LoggerFactory.getLogger(TIMCrawlerCLI.class);
+	
+	
+	private Client client;
+	private NaturalCLI cli;
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		
+		DOMConfigurator.configure(TIMCrawlerCLI.class.getResource("/log4j-cli.xml"));
+		
+		if (args.length < 2) {
+			System.err.println("usage: Client <torrent> <directory>");
+			System.exit(1);
+		}
+
+		try {
+			TIMCrawlerCLI tim = new TIMCrawlerCLI(args[0], args[1]);
+			tim.startCLI();
+		} catch (Exception e) {
+			logger.error("Fatal error: {}", e.getMessage(), e);
+			e.printStackTrace();
+			System.exit(2);
+		}
+	}
+	
+	public TIMCrawlerCLI(String torrentName, String directory) 
+			throws UnknownHostException, NoSuchAlgorithmException, IOException, InvalidSyntaxException {
+		
+		// Init the client
+		this.client = new Client(
+				InetAddress.getByName(System.getenv("HOSTNAME")),
+				SharedTorrent.fromFile(
+				new File(torrentName),
+				new File(directory)));
+		
+		Set<Command> cs = new HashSet<Command>();
+		cs.add(new HelpCommand(cs));
+		this.cli = new NaturalCLI(cs);		
+	}
+	
+	public void startCLI() throws IOException {
+		
+		// Start the client
+		this.client.share();
+		if (ClientState.ERROR.equals(this.client.getState())) {
+			System.exit(1);
+		}
+		
+		// Start the CLI
+//		/BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		
+		do {
+			try {
+				System.out.print("> ");
+				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+				String command = br.readLine();
+				if(command.equals("info")){
+					System.out.println(client.infoStr());
+				} else if(command.equals("stat")){
+					 System.out.println(client.statusStr());
+				} else if(command.equals("stop")){
+					System.out.print("Waiting for all threads to stop... ");
+			    	client.stop();
+			    	System.out.println("DONE");
+			    	System.exit(0);
+				} else {
+					System.out.print("No such command\n");
+					continue;
+				}
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+				System.out.print("Waiting for all threads to stop... ");
+		    	client.stop();
+		    	System.out.println("DONE");
+		    	System.exit(0);
+			}
+		} while (true);
+	}
+}
